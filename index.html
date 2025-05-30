@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clock {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .class-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px 30px;
+      border-radius: 15px;
+      font-size: 1.5em;
+      text-align: center;
+      border: 2px solid #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="clock" id="time"></div>
+    <div class="date" id="date"></div>
+    <div class="class-box" id="current-class">Loading current class...</div>
+  </div>
+
+  <script>
+    const schedule = [
+      { start: "08:30", end: "09:15", name: "Bible Class" },
+      { start: "09:15", end: "10:45", name: "ELA" },
+      { start: "10:45", end: "11:30", name: "Math" },
+      { start: "11:30", end: "12:35", name: "Lunch and Recess" },
+      { start: "12:35", end: "13:00", name: "Math (Continued)" },
+      { start: "13:00", end: "13:45", name: "Science" },
+      { start: "13:45", end: "14:30", name: "History" },
+      { start: "14:30", end: "15:15", name: "Special" } // varies by day
+    ];
+
+    const specials = {
+      1: "Gym",     // Monday
+      2: "SEL",     // Tuesday
+      3: "Elective",// Wednesday
+      5: "Music"     // Friday
+    };
+
+    function updateTime() {
+      const now = new Date();
+      const timeElement = document.getElementById("time");
+      const dateElement = document.getElementById("date");
+      const classElement = document.getElementById("current-class");
+
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateElement.textContent = now.toLocaleDateString(undefined, options);
+      timeElement.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const today = now.getDay();
+
+      let currentClass = "No current class.";
+      for (let i = 0; i < schedule.length; i++) {
+        const [startHour, startMin] = schedule[i].start.split(":").map(Number);
+        const [endHour, endMin] = schedule[i].end.split(":").map(Number);
+        const start = startHour * 60 + startMin;
+        const end = endHour * 60 + endMin;
+        if (currentTime >= start && currentTime < end) {
+          if (schedule[i].name === "Special") {
+            currentClass = specials[today] ? specials[today] : "No Special Today";
+          } else {
+            currentClass = schedule[i].name;
+          }
+          break;
+        }
+      }
+
+      classElement.textContent = `Current class: ${currentClass}`;
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+</body>
+</html>
